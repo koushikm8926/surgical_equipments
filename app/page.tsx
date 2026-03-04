@@ -16,6 +16,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
+import { StatsCounter } from '@/components/home/stats-counter';
+
 export default async function Home() {
   const supabase = await createClient();
 
@@ -108,7 +110,7 @@ export default async function Home() {
                 className="text-center relative after:hidden md:after:block after:absolute after:right-0 after:top-1/2 after:-translate-y-1/2 after:h-10 after:w-px after:bg-slate-100 last:after:hidden"
               >
                 <div className="text-3xl md:text-4xl font-black text-slate-900 mb-1">
-                  {stat.value}
+                  <StatsCounter value={stat.value} />
                 </div>
                 <div className="text-xs uppercase tracking-widest text-slate-500 font-bold">
                   {stat.label}
