@@ -4,7 +4,7 @@ import { useActionState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { updatePassword, type ActionState } from '@/app/account/actions';
+import { updatePassword } from '@/app/account/actions';
 
 export function SecurityForm() {
   const [state, formAction, isPending] = useActionState(updatePassword, null);

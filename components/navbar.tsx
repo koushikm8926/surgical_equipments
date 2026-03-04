@@ -3,12 +3,24 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, User, Menu } from 'lucide-react';
+import { ShoppingCart, User, Menu, Search } from 'lucide-react';
 import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -40,7 +52,24 @@ export function Navbar() {
           </div>
         </div>
 
+        <div className="hidden lg:flex flex-1 max-w-md mx-8">
+          <form onSubmit={handleSearch} className="relative w-full">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search equipment..."
+              className="pl-9 h-9 w-full bg-muted/50 focus-visible:bg-background"
+              key={searchParams.get('q') || 'search'}
+              defaultValue={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
+        </div>
+
         <div className="flex items-center gap-2 md:gap-4">
+          <Button variant="ghost" size="icon" className="hidden lg:flex lg:hidden">
+            <Search className="h-5 w-5" />
+          </Button>
           <Button variant="ghost" size="icon" className="relative">
             <ShoppingCart className="h-5 w-5" />
             <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">

@@ -4,7 +4,7 @@ import { useActionState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { updateProfile, type ActionState } from '@/app/account/actions';
+import { updateProfile } from '@/app/account/actions';
 import { User } from '@supabase/supabase-js';
 
 interface ProfileData {
