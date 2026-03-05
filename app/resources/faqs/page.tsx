@@ -15,6 +15,35 @@ export default async function FAQsPage() {
     .select('*')
     .order('display_order', { ascending: true });
 
+  const mockFaqs = [
+    {
+      id: 'mock-faq-1',
+      question: 'What is your standard delivery time?',
+      answer:
+        'Standard delivery takes 3-5 business days for major cities and 7-10 days for other locations across India.',
+    },
+    {
+      id: 'mock-faq-2',
+      question: 'Do you provide installation services?',
+      answer:
+        'Yes, for complex surgical and physiotherapy equipment, our technicians provide on-site installation and training.',
+    },
+    {
+      id: 'mock-faq-3',
+      question: 'Do you offer wholesale pricing for hospitals?',
+      answer:
+        'Absolutely. We offer competitive bulk pricing for medical institutions and clinics. Please use our contact form for a quote.',
+    },
+    {
+      id: 'mock-faq-4',
+      question: 'What is the warranty period for your equipment?',
+      answer:
+        'Most of our professional equipment comes with a 1-year manufacturer warranty, extendable upon request.',
+    },
+  ];
+
+  const displayFaqs = faqs && faqs.length > 0 ? faqs : mockFaqs;
+
   return (
     <div className="flex flex-col min-h-screen">
       <section className="bg-slate-900 text-white py-24">
@@ -38,7 +67,7 @@ export default async function FAQsPage() {
           </div>
 
           <Accordion type="single" collapsible className="w-full space-y-4">
-            {faqs?.map((faq) => (
+            {displayFaqs.map((faq) => (
               <AccordionItem
                 key={faq.id}
                 value={faq.id}

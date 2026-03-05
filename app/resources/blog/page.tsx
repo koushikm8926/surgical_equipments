@@ -13,6 +13,44 @@ export default async function BlogListingPage() {
     .eq('is_published', true)
     .order('published_at', { ascending: false });
 
+  const mockPosts = [
+    {
+      id: 'mock-post-1',
+      title: 'The Future of Minimally Invasive Surgery',
+      slug: 'future-of-minimally-invasive-surgery',
+      excerpt:
+        'Explore the latest advancements in robotic-assisted systems and endoscopic technologies transforming the modern operating room.',
+      cover_image:
+        'https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=2000&auto=format&fit=crop',
+      category: 'Surgical Technology',
+      published_at: '2023-11-20T10:00:00.000Z',
+    },
+    {
+      id: 'mock-post-2',
+      title: 'Optimizing Patient Recovery with Advanced Physiotherapy',
+      slug: 'optimizing-patient-recovery-physiotherapy',
+      excerpt:
+        'Learn how advanced modalities like deep-tissue ultrasound and computerized TENS units accelerate tissue healing.',
+      cover_image:
+        'https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2000&auto=format&fit=crop',
+      category: 'Rehabilitation',
+      published_at: '2023-10-15T08:30:00.000Z',
+    },
+    {
+      id: 'mock-post-3',
+      title: 'Essential Maintenance for Hospital Diagnostic Equipment',
+      slug: 'essential-maintenance-diagnostic-equipment',
+      excerpt:
+        'A comprehensive guide to routine calibration and maintenance of vital sign monitors and diagnostic tools.',
+      cover_image:
+        'https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2000&auto=format&fit=crop',
+      category: 'Facility Management',
+      published_at: '2023-09-05T14:15:00.000Z',
+    },
+  ];
+
+  const displayPosts = posts && posts.length > 0 ? posts : mockPosts;
+
   return (
     <div className="flex flex-col min-h-screen">
       <section className="bg-slate-900 text-white py-24">
@@ -30,7 +68,7 @@ export default async function BlogListingPage() {
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {posts?.map((post) => (
+            {displayPosts.map((post) => (
               <article
                 key={post.id}
                 className="group flex flex-col h-full bg-white border rounded-[2.5rem] overflow-hidden hover:shadow-2xl transition-all duration-500"
@@ -97,7 +135,7 @@ export default async function BlogListingPage() {
             ))}
           </div>
 
-          {(!posts || posts.length === 0) && (
+          {(!displayPosts || displayPosts.length === 0) && (
             <div className="text-center py-32 rounded-[3rem] bg-slate-50 border border-dashed">
               <p className="text-slate-400 font-medium">No blog posts found. Check back later!</p>
             </div>
