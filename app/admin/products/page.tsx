@@ -1,17 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import {
-  Package,
-  Plus,
-  Search,
-  Filter,
-  Edit,
-  Trash2,
-  MoreHorizontal,
-  ExternalLink,
-  AlertCircle,
-} from 'lucide-react';
+import { Package, Plus, Filter, Edit, MoreHorizontal, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -31,11 +20,18 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice } from '@/utils/format';
+import { AdminSearch } from '@/components/admin/admin-search';
+import { DeleteProductButton } from '@/components/admin/delete-product-button';
 
-export default async function AdminProductsPage() {
+export default async function AdminProductsPage({
+  searchParams,
+}: {
+  searchParams: { q?: string };
+}) {
+  const query = (await searchParams).q || '';
   const supabase = await createClient();
 
-  const { data: products, error } = await supabase
+  let productsQuery = supabase
     .from('products')
     .select(
       `
@@ -46,6 +42,12 @@ export default async function AdminProductsPage() {
     `,
     )
     .order('created_at', { ascending: false });
+
+  if (query) {
+    productsQuery = productsQuery.ilike('name', `%${query}%`);
+  }
+
+  const { data: products } = await productsQuery;
 
   return (
     <div className="space-y-8">
@@ -66,13 +68,7 @@ export default async function AdminProductsPage() {
 
       {/* Filters & Search */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Search products by name or SKU..."
-            className="pl-10 h-11 rounded-xl bg-white border-slate-200"
-          />
-        </div>
+        <AdminSearch placeholder="Search products by name..." />
         <Button variant="outline" className="h-11 rounded-xl gap-2 px-4 bg-white border-slate-200">
           <Filter className="w-4 h-4 text-slate-500" />
           More Filters
@@ -202,10 +198,9 @@ export default async function AdminProductsPage() {
                           </Link>
                         </DropdownMenuItem>
                         <div className="h-px bg-slate-100 my-1" />
-                        <DropdownMenuItem className="rounded-lg px-3 py-2 text-sm font-medium gap-2 text-red-600 focus:bg-red-50 focus:text-red-600 cursor-pointer">
-                          <Trash2 className="w-3.5 h-3.5" />
-                          Delete Product
-                        </DropdownMenuItem>
+                        <div className="p-0">
+                          <DeleteProductButton id={product.id} productName={product.name} />
+                        </div>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -216,7 +211,9 @@ export default async function AdminProductsPage() {
                 <TableCell colSpan={7} className="h-64 text-center">
                   <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
                     <Package className="w-10 h-10 opacity-20" />
-                    <p className="font-medium text-sm">No products found in the catalog.</p>
+                    <p className="font-medium text-sm">
+                      No products found for &quot;{query}&quot;.
+                    </p>
                     <Button variant="link" className="font-bold" asChild>
                       <Link href="/admin/products/new">Add first product →</Link>
                     </Button>

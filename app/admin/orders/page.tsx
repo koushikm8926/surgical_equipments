@@ -47,6 +47,29 @@ export default async function AdminOrdersPage() {
     )
     .order('created_at', { ascending: false });
 
+  // Fetch pending count
+  const { count: pendingCount } = await supabase
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'pending');
+
+  // Fetch processing count
+  const { count: processingCount } = await supabase
+    .from('orders')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'processing');
+
+  // Fetch today's revenue
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const { data: todayRevenueData } = await supabase
+    .from('orders')
+    .select('total_amount')
+    .gte('created_at', today.toISOString());
+
+  const todayRevenue =
+    todayRevenueData?.reduce((acc, curr) => acc + Number(curr.total_amount), 0) || 0;
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'delivered':
@@ -83,7 +106,9 @@ export default async function AdminOrdersPage() {
             <div className="text-sm font-bold text-slate-500 uppercase tracking-widest text-[10px]">
               Pending
             </div>
-            <div className="text-xl font-bold text-slate-900">12 Orders</div>
+            <div className="text-xl font-bold text-slate-900">
+              {String(pendingCount).padStart(2, '0')} Orders
+            </div>
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-4">
@@ -94,7 +119,9 @@ export default async function AdminOrdersPage() {
             <div className="text-sm font-bold text-slate-500 uppercase tracking-widest text-[10px]">
               Processing
             </div>
-            <div className="text-xl font-bold text-slate-900">08 Orders</div>
+            <div className="text-xl font-bold text-slate-900">
+              {String(processingCount).padStart(2, '0')} Orders
+            </div>
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-slate-200 flex items-center gap-4">
@@ -105,7 +132,7 @@ export default async function AdminOrdersPage() {
             <div className="text-sm font-bold text-slate-500 uppercase tracking-widest text-[10px]">
               Today Revenue
             </div>
-            <div className="text-xl font-bold text-slate-900">₹45,200</div>
+            <div className="text-xl font-bold text-slate-900">₹{todayRevenue.toLocaleString()}</div>
           </div>
         </div>
       </div>

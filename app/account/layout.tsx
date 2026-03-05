@@ -15,6 +15,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
             </CardHeader>
             <CardContent className="flex flex-col gap-1">
               <AccountNavItem href="/account" label="Profile Details" />
+              <AccountNavItem href="/account/orders" label="My Orders" />
               <AccountNavItem href="/account/addresses" label="Saved Addresses" />
               <AccountNavItem href="/account/security" label="Security" />
               <form action={signout} className="mt-4 border-t pt-4 w-full">

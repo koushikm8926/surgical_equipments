@@ -4,6 +4,8 @@ import './globals.css';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/sonner';
+import { CartProvider } from '@/contexts/cart-context';
+import { CartDrawer } from '@/components/cart/cart-drawer';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,10 +32,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <Toaster position="top-center" richColors />
+        <CartProvider>
+          <Navbar />
+          <CartDrawer />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <Toaster position="top-center" richColors />
+        </CartProvider>
       </body>
     </html>
   );

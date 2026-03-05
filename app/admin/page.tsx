@@ -52,6 +52,14 @@ export default async function AdminDashboard() {
     .order('created_at', { ascending: false })
     .limit(5);
 
+  // Fetch products with low stock (e.g., < 10)
+  const { data: lowStockProducts } = await supabase
+    .from('products')
+    .select('id, name, stock_quantity')
+    .lt('stock_quantity', 10)
+    .order('stock_quantity', { ascending: true })
+    .limit(5);
+
   const stats = [
     {
       label: 'Total Revenue',
@@ -100,10 +108,6 @@ export default async function AdminDashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.color}`}>
                   <stat.icon className="w-5 h-5" />
-                </div>
-                <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                  <ArrowUpRight className="w-2.5 h-2.5" />
-                  12%
                 </div>
               </div>
               <div>
@@ -214,14 +218,22 @@ export default async function AdminDashboard() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="divide-y divide-slate-100 text-sm">
-                <div className="p-4 flex items-center justify-between">
-                  <span className="font-medium text-slate-700">Hemostatic Forceps</span>
-                  <span className="font-black text-red-600">3 left</span>
-                </div>
-                <div className="p-4 flex items-center justify-between">
-                  <span className="font-medium text-slate-700">Digital TENS Unit</span>
-                  <span className="font-black text-amber-600">8 left</span>
-                </div>
+                {lowStockProducts && lowStockProducts.length > 0 ? (
+                  lowStockProducts.map((product) => (
+                    <div key={product.id} className="p-4 flex items-center justify-between">
+                      <span className="font-medium text-slate-700">{product.name}</span>
+                      <span
+                        className={`font-black ${product.stock_quantity === 0 ? 'text-red-600' : 'text-amber-600'}`}
+                      >
+                        {product.stock_quantity} left
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-slate-400 text-xs">
+                    All inventory healthy
+                  </div>
+                )}
                 <div className="p-4 text-center">
                   <Link
                     href="/admin/products"

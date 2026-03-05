@@ -2,10 +2,11 @@ import { createClient } from '@/utils/supabase/server';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ShoppingCart, ArrowLeft, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Truck, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { ProductCard } from '@/components/products/product-card';
+import { AddToCartButton } from '@/components/cart/add-to-cart-button';
+import { QuoteRequestButton } from '@/components/products/quote-request-button';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
@@ -131,13 +132,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <Button size="lg" className="flex-1 h-12" disabled={product.stock_quantity === 0}>
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              Add to Cart
-            </Button>
-            <Button variant="outline" size="lg" className="flex-1 h-12">
-              Request Quote
-            </Button>
+            <AddToCartButton
+              product={{
+                id: product.id,
+                name: product.name,
+                slug: product.slug,
+                price: product.price,
+                image_url: product.image_url,
+              }}
+              className="flex-1 h-12 text-base"
+            />
+            <QuoteRequestButton productId={product.id} productName={product.name} />
           </div>
 
           {/* Features/Trust Blocks */}

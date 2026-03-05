@@ -7,6 +7,7 @@ import { ShoppingCart, User, Menu, Search } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useCart } from '@/contexts/cart-context';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -14,6 +15,7 @@ export function Navbar() {
   const searchParams = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const { totalItems, openCart } = useCart();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,11 +73,20 @@ export function Navbar() {
           <Button variant="ghost" size="icon" className="hidden lg:flex lg:hidden">
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="relative">
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative"
+            onClick={openCart}
+            aria-label="Open cart"
+          >
             <ShoppingCart className="h-5 w-5" />
-            <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-              0
-            </span>
+            {totalItems > 0 && (
+              <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in-75">
+                {totalItems > 99 ? '99+' : totalItems}
+              </span>
+            )}
           </Button>
 
           <Button variant="ghost" size="icon" asChild>
