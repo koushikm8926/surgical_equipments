@@ -77,13 +77,19 @@ export default function ContactPage() {
                 ))}
               </div>
 
-              {/* Map Placeholder */}
-              <div className="relative h-80 w-full rounded-[2.5rem] overflow-hidden bg-slate-100 border">
-                <div className="absolute inset-0 flex items-center justify-center text-slate-400 flex-col gap-2">
-                  <MapPin className="w-10 h-10" />
-                  <span className="font-medium">Interactive Map Integration</span>
-                </div>
-                {/* Google Maps Embed would go here */}
+              {/* Interactive Google Map */}
+              <div className="relative h-80 w-full rounded-[2.5rem] overflow-hidden border">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3684.273182627402!2d88.42938167604586!3d22.568914633100657!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a02743203255555%3A0x244604c651661778!2sSector%20V%2C%20Bidhannagar%2C%20Kolkata%2C%20West%20Bengal!5e0!3m2!1sen!2sin!4v1709720000000!5m2!1sen!2sin"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Store Location"
+                  className="grayscale hover:grayscale-0 transition-all duration-500"
+                />
               </div>
             </div>
 
