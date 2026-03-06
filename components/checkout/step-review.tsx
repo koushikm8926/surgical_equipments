@@ -115,23 +115,15 @@ export function StepReview({ items, address, onNext, onBack, isLoading }: Props)
           <ArrowLeft className="w-4 h-4" /> Back to Shipping
         </Button>
         <Button
-          variant="secondary"
-          className="h-12 rounded-xl font-bold gap-2 border-2 border-primary/20 hover:bg-primary/5 text-primary"
+          className="h-12 rounded-xl font-bold gap-2 shadow-lg shadow-primary/20 md:col-span-2 bg-primary hover:bg-primary/90"
           onClick={() => onNext(true)}
-          disabled={isLoading}
-        >
-          Demo Pay (Instant)
-        </Button>
-        <Button
-          className="h-12 rounded-xl font-bold gap-2 shadow-lg shadow-primary/20"
-          onClick={() => onNext(false)}
           disabled={isLoading}
         >
           {isLoading ? (
             'Processing...'
           ) : (
             <>
-              Proceed to Stripe <ArrowRight className="w-4 h-4" />
+              Make Payment <ArrowRight className="w-4 h-4" />
             </>
           )}
         </Button>
