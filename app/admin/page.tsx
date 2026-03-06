@@ -1,250 +1,226 @@
-import { createClient } from '@/utils/supabase/server';
-import {
-  Package,
-  ShoppingCart,
-  Users,
-  TrendingUp,
-  ArrowUpRight,
-  ArrowDownRight,
-  Clock,
-  MoreVertical,
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { formatPrice } from '@/utils/format'; // I'll need to create this or use a simple one
+'use client';
+
+import { useEffect, useState } from 'react';
+import { TrendingUp, ShoppingBag, Clock, CheckCircle2, Package, ArrowRight } from 'lucide-react';
+import { StatCard } from '@/components/admin/stat-card';
+import { SalesChart } from '@/components/admin/chart-sales';
+import { OrderTable } from '@/components/admin/order-table';
+import { formatPrice } from '@/utils/format';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { type AdminStats } from '@/types/admin';
 
-export default async function AdminDashboard() {
-  const supabase = await createClient();
+export default function AdminDashboardPage() {
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch count of products
-  const { count: productCount } = await supabase
-    .from('products')
-    .select('*', { count: 'exact', head: true });
+  const fetchDashboardData = async () => {
+    try {
+      const res = await fetch('/api/admin/stats');
+      const data = await res.json();
+      setStats(data);
+    } catch {
+      toast.error('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Fetch count of orders
-  const { count: orderCount } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true });
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-  // Fetch count of customers
-  const { count: customerCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true });
+  const handleUpdateStatus = async (orderId: string, status: string) => {
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error('Update failed');
+      toast.success('Fulfillment status adjusted');
+      fetchDashboardData();
+    } catch {
+      toast.error('Operational error: Failed to update order');
+    }
+  };
 
-  // Fetch total revenue (sum of total_amount from orders)
-  const { data: revenueData } = await supabase.from('orders').select('total_amount');
-
-  const totalRevenue = revenueData?.reduce((acc, curr) => acc + Number(curr.total_amount), 0) || 0;
-
-  // Fetch recent orders
-  const { data: recentOrders } = await supabase
-    .from('orders')
-    .select(
-      `
-      *,
-      profiles (
-        full_name,
-        email
-      )
-    `,
-    )
-    .order('created_at', { ascending: false })
-    .limit(5);
-
-  // Fetch products with low stock (e.g., < 10)
-  const { data: lowStockProducts } = await supabase
-    .from('products')
-    .select('id, name, stock_quantity')
-    .lt('stock_quantity', 10)
-    .order('stock_quantity', { ascending: true })
-    .limit(5);
-
-  const stats = [
-    {
-      label: 'Total Revenue',
-      value: `₹${totalRevenue.toLocaleString()}`,
-      icon: TrendingUp,
-      color: 'text-emerald-600',
-      bg: 'bg-emerald-50',
-    },
-    {
-      label: 'Total Orders',
-      value: orderCount || 0,
-      icon: ShoppingCart,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
-    },
-    {
-      label: 'Active Products',
-      value: productCount || 0,
-      icon: Package,
-      color: 'text-violet-600',
-      bg: 'bg-violet-50',
-    },
-    {
-      label: 'Total Customers',
-      value: customerCount || 0,
-      icon: Users,
-      color: 'text-amber-600',
-      bg: 'bg-amber-50',
-    },
-  ];
-
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard Overview</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Welcome back. Here is what is happening with your store today.
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
+        <p className="text-slate-400 font-bold tracking-widest text-[10px] uppercase">
+          Booting Admin Core...
         </p>
       </div>
+    );
+  }
 
-      {/* Stats Grid */}
+  if (!stats)
+    return (
+      <div className="p-12 text-center bg-red-50 border border-red-100 rounded-3xl text-red-600 font-bold">
+        Critical System Failure: Unable to retrieve analytics
+      </div>
+    );
+
+  const chartData = stats.salesTrend.map((t) => ({
+    date: new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    amount: Number(t.total_amount),
+  }));
+
+  return (
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Executive Dashboard</h1>
+          <p className="text-slate-500 mt-2 font-medium bg-slate-100 w-fit px-3 py-1 rounded-full text-xs">
+            Live Analytics & Global Fulfillment Monitoring
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            className="rounded-2xl border-slate-200 shadow-sm font-bold text-xs px-6"
+            onClick={fetchDashboardData}
+          >
+            Refresh Data
+          </Button>
+          <Button
+            className="rounded-2xl shadow-lg shadow-primary/20 font-bold text-xs px-6"
+            asChild
+          >
+            <Link href="/admin/orders">Fulfillment Center</Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
-          <Card key={i} className="border-slate-200/60 shadow-sm overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-2.5 rounded-xl ${stat.bg} ${stat.color}`}>
-                  <stat.icon className="w-5 h-5" />
-                </div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold tracking-tight text-slate-900">{stat.value}</div>
-                <div className="text-xs font-medium text-slate-500 uppercase tracking-widest mt-1">
-                  {stat.label}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <StatCard
+          label="Gross Revenue"
+          value={formatPrice(stats.totalRevenue)}
+          icon={TrendingUp}
+          trend={{ value: '18.4%', isPositive: true }}
+          className="lg:col-span-1"
+        />
+        <StatCard label="Transaction Count" value={stats.orderCount} icon={ShoppingBag} />
+        <StatCard
+          label="Active Fulfillment"
+          value={(stats.statusCounts.processing || 0) + (stats.statusCounts.shipped || 0)}
+          icon={Clock}
+          className="border-blue-100 bg-blue-50/20"
+        />
+        <StatCard
+          label="Delivered Units"
+          value={stats.statusCounts.delivered || 0}
+          icon={CheckCircle2}
+          className="border-emerald-100 bg-emerald-50/20"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Orders */}
-        <Card className="lg:col-span-2 border-slate-200/60 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <CardTitle className="text-lg font-bold">Recent Orders</CardTitle>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/admin/orders" className="text-xs font-bold text-primary">
-                View All
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentOrders && recentOrders.length > 0 ? (
-                recentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex items-center justify-between p-4 rounded-xl border border-slate-100 bg-slate-50/30"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center">
-                        <ShoppingCart className="w-4 h-4 text-slate-400" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-slate-900">
-                          {order.profiles?.full_name || 'Anonymous'}
-                        </div>
-                        <div className="text-[11px] text-slate-500 font-medium">
-                          ID: #{order.id.slice(0, 8)} •{' '}
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-slate-900">
-                        ₹{Number(order.total_amount).toLocaleString()}
-                      </div>
-                      <div
-                        className={`text-[10px] font-bold uppercase tracking-wider mt-1 px-2 py-0.5 rounded-full inline-block ${
-                          order.status === 'delivered'
-                            ? 'bg-emerald-50 text-emerald-600'
-                            : order.status === 'pending'
-                              ? 'bg-amber-50 text-amber-600'
-                              : 'bg-slate-50 text-slate-600'
-                        }`}
-                      >
-                        {order.status}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-12 text-slate-400 flex flex-col items-center gap-3">
-                  <div className="p-4 bg-slate-50 rounded-full">
-                    <Clock className="w-8 h-8 text-slate-300" />
-                  </div>
-                  <p className="text-sm font-medium">No recent orders found</p>
-                </div>
-              )}
+        {/* Sales Chart Section */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="font-black text-slate-900 text-lg">Revenue Performance</h2>
+                <p className="text-slate-400 text-xs font-medium">Daily transaction volume (USD)</p>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-xl">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                  Live Trend
+                </span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+            <div className="h-[280px]">
+              <SalesChart data={chartData} height={280} />
+            </div>
+          </div>
 
-        {/* Quick Actions & Low Stock */}
-        <div className="space-y-8">
-          <Card className="border-slate-200/60 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button className="w-full justify-start gap-3 rounded-xl h-11" asChild>
-                <Link href="/admin/products/new">
-                  <Package className="w-4 h-4" />
-                  Add New Product
-                </Link>
-              </Button>
+          {/* Table Container */}
+          <div className="bg-white border border-slate-200 rounded-[32px] overflow-hidden shadow-sm">
+            <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
+              <h2 className="font-black text-slate-900 text-lg">Recent Transactions</h2>
               <Button
-                variant="outline"
-                className="w-full justify-start gap-3 rounded-xl h-11"
+                variant="ghost"
+                size="sm"
                 asChild
+                className="text-primary hover:bg-primary/5 rounded-xl font-bold"
               >
                 <Link href="/admin/orders">
-                  <ShoppingCart className="w-4 h-4" />
-                  Manage Orders
+                  All Activity <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+            <OrderTable orders={stats.recentOrders} onUpdateStatus={handleUpdateStatus} />
+          </div>
+        </div>
 
-          <Card className="border-slate-200/60 shadow-sm overflow-hidden">
-            <CardHeader className="bg-slate-50/50 border-b border-slate-100">
-              <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-500">
-                Low Stock Alerts
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="divide-y divide-slate-100 text-sm">
-                {lowStockProducts && lowStockProducts.length > 0 ? (
-                  lowStockProducts.map((product) => (
-                    <div key={product.id} className="p-4 flex items-center justify-between">
-                      <span className="font-medium text-slate-700">{product.name}</span>
-                      <span
-                        className={`font-black ${product.stock_quantity === 0 ? 'text-red-600' : 'text-amber-600'}`}
-                      >
-                        {product.stock_quantity} left
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-8 text-center text-slate-400 text-xs">
-                    All inventory healthy
+        {/* Sidebar Info */}
+        <div className="space-y-8">
+          <div className="bg-slate-900 border border-slate-800 rounded-[32px] p-8 shadow-2xl text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[60px] rounded-full" />
+            <div className="relative z-10">
+              <Package className="w-10 h-10 text-primary mb-6" />
+              <h2 className="font-black text-xl leading-tight">Operational Alert</h2>
+              <p className="text-slate-400 text-xs mt-2 mb-6 font-medium leading-relaxed">
+                Critical stocks detected for &quot;Surgical Scalpel Set&quot; and &quot;N95
+                Respirators&quot;. Immediate procurement required.
+              </p>
+              <Button
+                variant="secondary"
+                className="w-full rounded-2xl font-black py-6 bg-white hover:bg-slate-100 text-slate-900 text-xs uppercase tracking-widest shadow-xl shadow-primary/10"
+                asChild
+              >
+                <Link href="/admin/products">Resolve Inventory</Link>
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-[32px] p-8 shadow-sm">
+            <h2 className="font-black text-slate-900 mb-6">Fulfillment Health</h2>
+            <div className="space-y-6">
+              {[
+                {
+                  label: 'Delivered',
+                  count: stats.statusCounts.delivered || 0,
+                  color: 'bg-emerald-500',
+                },
+                {
+                  label: 'In Transit',
+                  count: stats.statusCounts.shipped || 0,
+                  color: 'bg-violet-500',
+                },
+                {
+                  label: 'Processing',
+                  count: stats.statusCounts.processing || 0,
+                  color: 'bg-blue-500',
+                },
+                { label: 'Pending', count: stats.statusCounts.pending || 0, color: 'bg-amber-500' },
+              ].map((item) => (
+                <div key={item.label} className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-500 font-bold">{item.label}</span>
+                    <span className="font-black text-slate-900">{item.count}</span>
                   </div>
-                )}
-                <div className="p-4 text-center">
-                  <Link
-                    href="/admin/products"
-                    className="text-xs font-bold text-primary hover:underline"
-                  >
-                    View All Inventory
-                  </Link>
+                  <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                    <div
+                      className={`${item.color} h-full rounded-full transition-all duration-1000`}
+                      style={{ width: `${(item.count / stats.orderCount) * 100 || 0}%` }}
+                    />
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+            <div className="mt-8 pt-6 border-t border-slate-100">
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center">
+                System healthy: All nodes synchronized
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

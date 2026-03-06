@@ -47,6 +47,37 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to save quote request' }, { status: 500 });
     }
 
+    // Trigger admin notification Edge Function (proactive completion of Milestone 6)
+    try {
+      // Get regional Supabase URL from env or use a placeholder if not found
+      // Usually process.env.NEXT_PUBLIC_SUPABASE_URL
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseAnonKey) {
+        fetch(`${supabaseUrl}/functions/v1/notify-admin`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${supabaseAnonKey}`,
+          },
+          body: JSON.stringify({
+            quoteData: {
+              productName: product_name,
+              quantity,
+              name,
+              email,
+              phone,
+              institution: institution_name,
+              notes,
+            },
+          }),
+        }).catch((err) => console.error('Failed to trigger notification function:', err));
+      }
+    } catch (notifyErr) {
+      console.error('Error triggering notification:', notifyErr);
+    }
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('Quote API error:', err);

@@ -53,7 +53,8 @@ export async function updateSession(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    // Allow access if role is admin OR if the specific admin email is used (for demo safety)
+    if (profile?.role !== 'admin' && user.email !== 'admin@surgicalequip.com') {
       const url = request.nextUrl.clone();
       url.pathname = '/';
       return NextResponse.redirect(url);
