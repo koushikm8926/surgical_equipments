@@ -1,5 +1,14 @@
 import Link from 'next/link';
-import { Stethoscope, Mail, Phone, MapPin } from 'lucide-react';
+import {
+  Stethoscope,
+  Mail,
+  Phone,
+  MapPin,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Instagram,
+} from 'lucide-react';
 
 export function Footer() {
   return (
@@ -20,13 +29,19 @@ export function Footer() {
               rehabilitation equipment since 2010.
             </p>
             <div className="flex gap-3">
-              {['Twitter', 'LinkedIn', 'Facebook'].map((social) => (
+              {[
+                { name: 'Facebook', icon: Facebook, href: '#' },
+                { name: 'Twitter', icon: Twitter, href: '#' },
+                { name: 'LinkedIn', icon: Linkedin, href: '#' },
+                { name: 'Instagram', icon: Instagram, href: '#' },
+              ].map((social) => (
                 <a
-                  key={social}
-                  href="#"
-                  className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary transition-all duration-300 text-xs font-bold text-slate-500 hover:text-white"
+                  key={social.name}
+                  href={social.href}
+                  className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary transition-all duration-300 text-slate-500 hover:text-white group"
+                  aria-label={social.name}
                 >
-                  {social[0]}
+                  <social.icon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
                 </a>
               ))}
             </div>
