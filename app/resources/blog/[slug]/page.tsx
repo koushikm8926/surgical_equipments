@@ -88,7 +88,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               >
                 {/* Since we don't have a markdown parser here, we'll just display original content or a placeholder. 
                       In a real app, you'd use react-markdown or similar. */}
-                <div dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />') }} />
+                <div dangerouslySetInnerHTML={{ __html: post.content }} />
               </div>
 
               <div className="mt-20 pt-12 border-t flex flex-col md:flex-row items-center justify-between gap-8">
