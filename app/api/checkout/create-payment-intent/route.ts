@@ -24,6 +24,7 @@ const CheckoutBodySchema = z.object({
     country: z.string().min(1),
     phone: z.string().min(1),
   }),
+  is_demo: z.boolean().optional(),
 });
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -81,22 +82,30 @@ export async function POST(req: NextRequest) {
     const gst = subtotal * 0.18;
     const totalAmount = Math.round((subtotal + gst) * 100); // paise
 
-    // Create Stripe PaymentIntent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: totalAmount,
-      currency: 'inr',
-      metadata: { user_id: user.id },
-    });
+    let paymentIntentId = null;
+    let clientSecret = null;
+    const isDemo = parsed.data.is_demo === true;
 
-    // Create pending order in DB
+    if (!isDemo) {
+      // Create Stripe PaymentIntent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: totalAmount,
+        currency: 'inr',
+        metadata: { user_id: user.id },
+      });
+      paymentIntentId = paymentIntent.id;
+      clientSecret = paymentIntent.client_secret;
+    }
+
+    // Create order in DB
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
         user_id: user.id,
-        status: 'pending',
+        status: isDemo ? 'processing' : 'pending',
         total_amount: (subtotal + gst).toFixed(2),
         shipping_address,
-        stripe_payment_intent_id: paymentIntent.id,
+        stripe_payment_intent_id: paymentIntentId,
       })
       .select('id')
       .single();
@@ -119,8 +128,9 @@ export async function POST(req: NextRequest) {
     await supabase.from('order_items').insert(orderItems);
 
     return NextResponse.json({
-      clientSecret: paymentIntent.client_secret,
+      clientSecret,
       orderId: order.id,
+      isDemo,
     });
   } catch (err) {
     console.error('create-payment-intent error:', err);

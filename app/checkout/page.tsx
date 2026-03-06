@@ -37,7 +37,7 @@ export default function CheckoutPage() {
     setStep(2);
   };
 
-  const handleCreateIntent = async () => {
+  const handleCreateIntent = async (isDemo = false) => {
     if (!shippingAddress) return;
     setIsCreatingIntent(true);
     setIntentError('');
@@ -46,7 +46,7 @@ export default function CheckoutPage() {
       const res = await fetch('/api/checkout/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, shipping_address: shippingAddress }),
+        body: JSON.stringify({ items, shipping_address: shippingAddress, is_demo: isDemo }),
       });
 
       const data = await res.json();
@@ -54,6 +54,12 @@ export default function CheckoutPage() {
       if (!res.ok) {
         setIntentError(data.error ?? 'Failed to initialize payment');
         setIsCreatingIntent(false);
+        return;
+      }
+
+      if (data.isDemo) {
+        // Clear cart and redirect to confirmation
+        router.push(`/orders/${data.orderId}/confirmation`);
         return;
       }
 

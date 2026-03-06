@@ -13,7 +13,7 @@ function formatPrice(n: number) {
 interface Props {
   items: CartItem[];
   address: ShippingAddress;
-  onNext: () => void;
+  onNext: (isDemo?: boolean) => void;
   onBack: () => void;
   isLoading?: boolean;
 }
@@ -105,25 +105,33 @@ export function StepReview({ items, address, onNext, onBack, isLoading }: Props)
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Button
           variant="outline"
-          className="flex-1 h-12 rounded-xl font-bold gap-2"
+          className="h-12 rounded-xl font-bold gap-2 order-3 md:order-none md:col-span-2"
           onClick={onBack}
           disabled={isLoading}
         >
-          <ArrowLeft className="w-4 h-4" /> Back
+          <ArrowLeft className="w-4 h-4" /> Back to Shipping
         </Button>
         <Button
-          className="flex-1 h-12 rounded-xl font-bold gap-2 shadow-lg shadow-primary/20"
-          onClick={onNext}
+          variant="secondary"
+          className="h-12 rounded-xl font-bold gap-2 border-2 border-primary/20 hover:bg-primary/5 text-primary"
+          onClick={() => onNext(true)}
+          disabled={isLoading}
+        >
+          Demo Pay (Instant)
+        </Button>
+        <Button
+          className="h-12 rounded-xl font-bold gap-2 shadow-lg shadow-primary/20"
+          onClick={() => onNext(false)}
           disabled={isLoading}
         >
           {isLoading ? (
             'Processing...'
           ) : (
             <>
-              Proceed to Payment <ArrowRight className="w-4 h-4" />
+              Proceed to Stripe <ArrowRight className="w-4 h-4" />
             </>
           )}
         </Button>
