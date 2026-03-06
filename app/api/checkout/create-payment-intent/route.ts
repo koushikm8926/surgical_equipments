@@ -28,7 +28,7 @@ const CheckoutBodySchema = z.object({
 });
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia',
+  apiVersion: '2026-02-25.clover',
 });
 
 export async function POST(req: NextRequest) {
@@ -37,10 +37,6 @@ export async function POST(req: NextRequest) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const body = await req.json();
     const parsed = CheckoutBodySchema.safeParse(body);
@@ -91,7 +87,10 @@ export async function POST(req: NextRequest) {
       const paymentIntent = await stripe.paymentIntents.create({
         amount: totalAmount,
         currency: 'inr',
-        metadata: { user_id: user.id },
+        metadata: {
+          user_id: user?.id || 'guest',
+          guest_email: shipping_address.phone, // using phone as identifier for guests
+        },
       });
       paymentIntentId = paymentIntent.id;
       clientSecret = paymentIntent.client_secret;
@@ -101,7 +100,7 @@ export async function POST(req: NextRequest) {
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: user.id,
+        user_id: user?.id || null,
         status: isDemo ? 'processing' : 'pending',
         total_amount: (subtotal + gst).toFixed(2),
         shipping_address,
@@ -111,7 +110,11 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (orderError || !order) {
-      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+      console.error('Order creation failed:', orderError);
+      return NextResponse.json(
+        { error: `Failed to create order: ${orderError?.message || 'Unknown error'}` },
+        { status: 500 },
+      );
     }
 
     // Insert order items

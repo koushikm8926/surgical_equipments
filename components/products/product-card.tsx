@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 
 interface Product {
   id: string;
@@ -63,9 +63,17 @@ export function ProductCard({ product }: { product: Product }) {
       </CardContent>
       <CardFooter className="p-4 flex items-center justify-between border-t bg-muted/20">
         <span className="text-lg font-bold">₹{product.price.toLocaleString()}</span>
-        <Button size="sm" disabled={product.stock_quantity === 0}>
-          Add to Cart
-        </Button>
+        <AddToCartButton
+          product={{
+            id: product.id,
+            name: product.name,
+            slug: product.slug,
+            price: product.price,
+            image_url: product.image_url ?? null,
+          }}
+          variant="icon"
+          className="h-10 w-10"
+        />
       </CardFooter>
     </Card>
   );
