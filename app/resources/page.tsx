@@ -29,7 +29,7 @@ export default function ResourcesPage() {
     },
     {
       title: 'Educational Library',
-      description: 'Instructional videos and infographics for equipment operation.',
+      description: 'Product manuals and infographics for equipment operation.',
       href: '/resources/library',
       icon: PlayCircle,
       color: 'bg-purple-600',
@@ -75,35 +75,6 @@ export default function ResourcesPage() {
                 </div>
               </Link>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Blog Preview CTA */}
-      <section className="py-24 bg-slate-50 border-y">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-            <div className="max-w-xl">
-              <h2 className="text-4xl font-bold mb-6">Need more specialized help?</h2>
-              <p className="text-lg text-slate-600 mb-8">
-                Our technical support team is available for one-on-one consultations regarding
-                complex hospital setups and equipment maintenance.
-              </p>
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors"
-              >
-                Contact Support Team
-              </Link>
-            </div>
-            <div className="w-full md:w-1/2 aspect-video rounded-[3rem] bg-slate-200 overflow-hidden relative border shadow-2xl">
-              <div className="absolute inset-0 flex items-center justify-center text-slate-400 flex-col gap-4">
-                <PlayCircle className="w-16 h-16" />
-                <span className="font-bold uppercase tracking-widest text-sm">
-                  Introduction Video
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       </section>

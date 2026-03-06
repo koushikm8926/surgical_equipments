@@ -38,27 +38,6 @@ export default async function EducationalLibraryPage() {
 
   const mockResources = [
     {
-      id: 'mock-lib-1',
-      title: 'Surgical Scalpel Handling & Safety',
-      description: 'Proper techniques for attaching standard surgical blades to reusable handles.',
-      type: 'video',
-      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      thumbnail_url:
-        'https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800&auto=format&fit=crop',
-      category: 'Surgical Protocols',
-    },
-    {
-      id: 'mock-lib-2',
-      title: 'Ultrasound Therapy Device Setup Guide',
-      description:
-        'Step-by-step video on setting up and calibrating the professional ultrasound unit.',
-      type: 'video',
-      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      thumbnail_url:
-        'https://images.unsplash.com/photo-1631558556885-3d84964be42a?q=80&w=800&auto=format&fit=crop',
-      category: 'Equipment Setup',
-    },
-    {
       id: 'mock-lib-3',
       title: 'Digital TENS Machine Field Manual',
       description:
@@ -90,8 +69,7 @@ export default async function EducationalLibraryPage() {
           <div className="max-w-3xl">
             <h1 className="text-5xl font-bold tracking-tight mb-6">Educational Library.</h1>
             <p className="text-xl text-slate-400">
-              Access product manuals, instructional videos, and safety infographics for your medical
-              equipment.
+              Access product manuals and safety infographics for your medical equipment.
             </p>
           </div>
         </div>

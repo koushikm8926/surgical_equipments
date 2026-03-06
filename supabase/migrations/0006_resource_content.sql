@@ -53,7 +53,5 @@ INSERT INTO testimonials (name, role, content, rating, is_approved) VALUES
 
 -- 5. Seed Library Resources
 INSERT INTO library_resources (title, description, type, url, thumbnail_url, category, display_order) VALUES
-('Surgical Scalpel Handling & Safety', 'Proper techniques for attaching standard surgical blades to reusable handles.', 'video', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?q=80&w=800&auto=format&fit=crop', 'Surgical Protocols', 1),
-('Ultrasound Therapy Device Setup Guide', 'Step-by-step video on setting up and calibrating the professional ultrasound unit.', 'video', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'https://images.unsplash.com/photo-1631558556885-3d84964be42a?q=80&w=800&auto=format&fit=crop', 'Equipment Setup', 2),
 ('Digital TENS Machine Field Manual', 'Complete operation manual including safety warnings, electrode placement, and maintenance.', 'manual', '/placeholder_manual.pdf', NULL, 'Equipment Setup', 3),
 ('Sterilization Guidelines Chart', 'Quick-reference infographic for autoclave temperature and pressure settings by material type.', 'infographic', '/placeholder_chart.pdf', 'https://images.unsplash.com/photo-1581093450021-4a7360e9a6b5?q=80&w=800&auto=format&fit=crop', 'Safety & Maintenance', 4);
