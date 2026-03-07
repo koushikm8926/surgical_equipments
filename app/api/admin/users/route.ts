@@ -64,6 +64,7 @@ export async function GET() {
 
     return NextResponse.json(customers);
   } catch (error: unknown) {
+    console.error('API Error /api/admin/users:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },

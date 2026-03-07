@@ -39,14 +39,17 @@ export async function GET() {
 
     if (error) throw error;
 
-    // Map order_items to the format expected by the frontend: [{ count: number }]
+    // Map result to expected format
     const formattedOrders = (orders || []).map((order) => ({
       ...order,
-      order_items: [{ count: order.order_items?.length || 0 }],
+      order_items: [
+        { count: (order as { order_items?: { id: string }[] }).order_items?.length || 0 },
+      ],
     }));
 
     return NextResponse.json(formattedOrders);
   } catch (error: unknown) {
+    console.error('API Error /api/admin/orders:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 },
