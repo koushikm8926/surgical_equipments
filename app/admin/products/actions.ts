@@ -52,12 +52,18 @@ export async function upsertProduct(
       .single();
 
     if (profile?.role !== 'admin') {
-      await supabase.from('profiles').upsert({
+      const { error: syncError } = await supabase.from('profiles').upsert({
         id: user.id,
         email: user.email,
         role: 'admin',
         full_name: 'Default Admin',
       });
+
+      if (syncError) {
+        return {
+          message: `Permission Sync Failed: ${syncError.message}. Please run the administration fix migration.`,
+        };
+      }
     }
   }
 
