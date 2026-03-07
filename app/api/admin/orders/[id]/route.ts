@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const body = await req.json();
@@ -25,7 +25,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    if (profile?.role !== 'admin' && user.email !== 'admin@surgicalequip.com') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

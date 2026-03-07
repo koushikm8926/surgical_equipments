@@ -15,7 +15,6 @@ import {
   Sparkles,
   ArrowRight,
 } from 'lucide-react';
-
 import { StatsCounter } from '@/components/home/stats-counter';
 
 export default async function Home() {
@@ -34,8 +33,6 @@ export default async function Home() {
     .eq('is_featured', true)
     .limit(4);
 
-  const { data: categories } = await supabase.from('categories').select('*').limit(4);
-
   const stats = [
     { value: '14+', label: 'Years Experience' },
     { value: '2,500+', label: 'Products Available' },
@@ -44,7 +41,7 @@ export default async function Home() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <>
       {/* ──────────────── HERO ──────────────── */}
       <section className="relative w-full min-h-[700px] flex items-center overflow-hidden bg-slate-950">
         {/* Background Image */}
@@ -332,6 +329,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-    </div>
+    </>
   );
 }

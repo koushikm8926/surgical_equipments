@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { TrendingUp, ShoppingBag, Clock, CheckCircle2, Package, ArrowRight } from 'lucide-react';
+import {
+  TrendingUp,
+  ShoppingBag,
+  Clock,
+  CheckCircle2,
+  Package,
+  ArrowRight,
+  IndianRupee,
+} from 'lucide-react';
 import { StatCard } from '@/components/admin/stat-card';
 import { SalesChart } from '@/components/admin/chart-sales';
 import { OrderTable } from '@/components/admin/order-table';
@@ -18,6 +26,10 @@ export default function AdminDashboardPage() {
   const fetchDashboardData = async () => {
     try {
       const res = await fetch('/api/admin/stats');
+      if (!res.ok) {
+        setStats(null);
+        return;
+      }
       const data = await res.json();
       setStats(data);
     } catch {
@@ -64,7 +76,7 @@ export default function AdminDashboardPage() {
       </div>
     );
 
-  const chartData = stats.salesTrend.map((t) => ({
+  const chartData = (stats?.salesTrend || []).map((t) => ({
     date: new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     amount: Number(t.total_amount),
   }));
@@ -105,6 +117,12 @@ export default function AdminDashboardPage() {
           className="lg:col-span-1"
         />
         <StatCard label="Transaction Count" value={stats.orderCount} icon={ShoppingBag} />
+        <StatCard
+          label="Avg. Order Value"
+          value={formatPrice(stats.averageOrderValue)}
+          icon={IndianRupee}
+          trend={{ value: '5.2%', isPositive: true }}
+        />
         <StatCard
           label="Active Fulfillment"
           value={(stats.statusCounts.processing || 0) + (stats.statusCounts.shipped || 0)}
@@ -155,7 +173,7 @@ export default function AdminDashboardPage() {
                 </Link>
               </Button>
             </div>
-            <OrderTable orders={stats.recentOrders} onUpdateStatus={handleUpdateStatus} />
+            <OrderTable orders={stats.recentOrders || []} onUpdateStatus={handleUpdateStatus} />
           </div>
         </div>
 

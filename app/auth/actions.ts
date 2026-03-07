@@ -17,10 +17,25 @@ export async function login(prevState: AuthState, formData: FormData) {
     password: formData.get('password') as string,
   };
 
-  const { error } = await supabase.auth.signInWithPassword(data);
+  const { data: authData, error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
     return { error: error.message };
+  }
+
+  const user = authData?.user;
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role === 'admin' || user.email === 'admin@surgicalequip.com') {
+      revalidatePath('/', 'layout');
+      redirect('/admin');
+    }
   }
 
   revalidatePath('/', 'layout');

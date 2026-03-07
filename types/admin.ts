@@ -27,7 +27,19 @@ export interface SalesTrendPoint {
 export interface AdminStats {
   totalRevenue: number;
   orderCount: number;
+  averageOrderValue: number;
   statusCounts: Record<string, number>;
   recentOrders: Order[];
   salesTrend: SalesTrendPoint[];
+}
+
+export interface Customer {
+  id: string;
+  email: string;
+  full_name: string | null;
+  role: string;
+  created_at: string;
+  updated_at: string;
+  total_orders: number;
+  total_spend: number;
 }

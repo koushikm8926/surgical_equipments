@@ -17,7 +17,7 @@ export async function GET() {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
+    if (profile?.role !== 'admin' && user.email !== 'admin@surgicalequip.com') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

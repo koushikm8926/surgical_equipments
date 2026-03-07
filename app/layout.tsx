@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   description: 'Premium medical and physiotherapy equipment for professionals and personal care.',
 };
 
+import { Suspense } from 'react';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -33,7 +35,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <CartProvider>
-          <Navbar />
+          <Suspense fallback={<div className="h-16 border-b bg-background/95" />}>
+            <Navbar />
+          </Suspense>
           <CartDrawer />
           <main className="flex-1">{children}</main>
           <Footer />

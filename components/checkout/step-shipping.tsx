@@ -14,7 +14,7 @@ const ShippingSchema = z.object({
   city: z.string().min(2, 'City required'),
   state: z.string().min(2, 'State required'),
   postal_code: z.string().regex(/^\d{6}$/, 'Valid 6-digit PIN required'),
-  country: z.string().default('India'),
+  country: z.string().min(1, 'Country required'),
   phone: z.string().regex(/^\+?[\d\s-]{10,}$/, 'Valid phone number required'),
 });
 

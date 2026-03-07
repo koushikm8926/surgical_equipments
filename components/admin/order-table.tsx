@@ -65,7 +65,7 @@ export function OrderTable({ orders, onUpdateStatus, loading }: OrderTableProps)
     );
   }
 
-  if (orders.length === 0) {
+  if (!orders || orders.length === 0) {
     return (
       <div className="px-6 py-16 text-center text-slate-400 border-2 border-dashed border-slate-100 m-6 rounded-3xl">
         <ShoppingBag className="w-12 h-12 mx-auto mb-4 opacity-20" />

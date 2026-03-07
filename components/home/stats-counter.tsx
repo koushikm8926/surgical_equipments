@@ -8,8 +8,14 @@ interface StatsCounterProps {
 }
 
 export function StatsCounter({ value, duration = 5000 }: StatsCounterProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const [displayValue, setDisplayValue] = useState('0');
   const countRef = useRef<number>(0);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
 
   // Parse the number and symbols (e.g., "14+" -> number: 14, suffix: "+")
   // Handle commas like "2,500+"
@@ -48,6 +54,8 @@ export function StatsCounter({ value, duration = 5000 }: StatsCounterProps) {
 
     window.requestAnimationFrame(step);
   }, [targetNumber, duration, prefix, suffix, hasCommas]);
+
+  if (!isMounted) return <span>{value}</span>;
 
   return <span>{displayValue}</span>;
 }
