@@ -7,12 +7,22 @@ export interface OrderItem {
   count: number;
 }
 
+export interface ShippingAddress {
+  full_name: string;
+  street_address: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+  phone: string;
+}
+
 export interface Order {
   id: string;
   user_id: string | null;
   status: string;
   total_amount: number;
-  shipping_address: Record<string, unknown>;
+  shipping_address: ShippingAddress;
   created_at: string;
   updated_at: string;
   profiles: OrderProfile | null;
@@ -42,4 +52,5 @@ export interface Customer {
   updated_at: string;
   total_orders: number;
   total_spend: number;
+  is_guest?: boolean;
 }

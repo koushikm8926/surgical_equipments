@@ -117,10 +117,12 @@ export function OrderTable({ orders, onUpdateStatus, loading }: OrderTableProps)
                     </div>
                     <div className="flex flex-col">
                       <span className="font-bold text-slate-900 leading-tight">
-                        {order.profiles?.full_name || 'Anonymous Guest'}
+                        {order.profiles?.full_name ||
+                          order.shipping_address?.full_name ||
+                          'Anonymous Guest'}
                       </span>
                       <span className="text-slate-400 text-[11px]">
-                        {order.profiles?.email || 'Guest Session'}
+                        {order.profiles?.email || 'Guest Customer'}
                       </span>
                     </div>
                   </div>

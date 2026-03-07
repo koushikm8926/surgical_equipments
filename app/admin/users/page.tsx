@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { formatPrice, formatDate } from '@/utils/format';
 import { type Customer } from '@/types/admin';
+import { cn } from '@/lib/utils';
 
 export default function AdminUsersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -153,16 +154,18 @@ export default function AdminUsersPage() {
                       </span>
                     </td>
                     <td className="px-6 py-5">
-                      <Badge
-                        variant="outline"
-                        className={`rounded-xl px-2.5 font-bold text-[10px] uppercase tracking-wider ${
-                          customer.total_orders > 0
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                            : 'bg-slate-50 text-slate-400 border-slate-100'
-                        }`}
-                      >
-                        {customer.total_orders > 0 ? 'Active' : 'Inactive'}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className={`rounded-xl px-2.5 font-bold text-[10px] uppercase tracking-wider ${
+                            customer.is_guest
+                              ? 'bg-amber-50 text-amber-600 border-amber-100'
+                              : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                          }`}
+                        >
+                          {customer.is_guest ? 'Guest' : 'Active'}
+                        </Badge>
+                      </div>
                     </td>
                   </tr>
                 ))}

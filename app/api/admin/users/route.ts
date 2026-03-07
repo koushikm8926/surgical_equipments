@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
+import { type Customer, type ShippingAddress } from '@/types/admin';
 
 export async function GET() {
   try {
@@ -38,29 +39,59 @@ export async function GET() {
 
     if (profilesError) throw profilesError;
 
-    // Fetch order summaries per user
+    // Fetch all orders (including guests)
     const { data: orders } = await supabase
       .from('orders')
-      .select('user_id, total_amount')
+      .select('user_id, total_amount, shipping_address, created_at')
       .neq('status', 'cancelled');
 
-    // Aggregate order data per user
-    const orderMap: Record<string, { count: number; spend: number }> = {};
-    (orders || []).forEach((order) => {
-      if (!order.user_id) return;
-      if (!orderMap[order.user_id]) {
-        orderMap[order.user_id] = { count: 0, spend: 0 };
-      }
-      orderMap[order.user_id].count += 1;
-      orderMap[order.user_id].spend += Number(order.total_amount);
+    // Combined Customer Storage
+    const customerMap = new Map<string, Customer>();
+
+    // 1. Initialize from Profiles
+    (profiles || []).forEach((p) => {
+      customerMap.set(p.id, {
+        id: p.id,
+        full_name: p.full_name,
+        email: p.email,
+        created_at: p.created_at,
+        updated_at: p.updated_at,
+        role: p.role,
+        total_orders: 0,
+        total_spend: 0,
+        is_guest: false,
+      });
     });
 
-    // Merge profiles with order data
-    const customers = (profiles || []).map((p) => ({
-      ...p,
-      total_orders: orderMap[p.id]?.count || 0,
-      total_spend: orderMap[p.id]?.spend || 0,
-    }));
+    // 2. Aggregate Orders and Add Guests
+    (orders || []).forEach((order) => {
+      const shipping = order.shipping_address as unknown as ShippingAddress;
+      const phone = shipping?.phone;
+      const customerKey = order.user_id || `guest_${phone}`;
+
+      if (!customerMap.has(customerKey)) {
+        // Create Guest Record
+        customerMap.set(customerKey, {
+          id: customerKey,
+          full_name: shipping?.full_name || 'Anonymous Guest',
+          email: 'Guest Customer',
+          created_at: order.created_at,
+          updated_at: order.created_at,
+          role: 'guest',
+          total_orders: 0,
+          total_spend: 0,
+          is_guest: true,
+        });
+      }
+
+      const c = customerMap.get(customerKey)!;
+      c.total_orders += 1;
+      c.total_spend += Number(order.total_amount);
+    });
+
+    const customers = Array.from(customerMap.values()).sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
 
     return NextResponse.json(customers);
   } catch (error: unknown) {
