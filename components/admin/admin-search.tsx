@@ -13,21 +13,24 @@ export function AdminSearch({ placeholder }: { placeholder: string }) {
   const [value, setValue] = useState(searchParams.get('q') || '');
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set('q', value);
-    } else {
-      params.delete('q');
-    }
-
     const timeout = setTimeout(() => {
+      const currentQuery = searchParams.get('q') || '';
+      if (value === currentQuery) return;
+
+      const params = new URLSearchParams(searchParams.toString());
+      if (value) {
+        params.set('q', value);
+      } else {
+        params.delete('q');
+      }
+
       startTransition(() => {
         router.replace(`${pathname}?${params.toString()}`);
       });
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [value, pathname, router, searchParams]);
+  }, [value, pathname, router]); // Removed searchParams to prevent potential infinite loop
 
   return (
     <div className="relative flex-1">

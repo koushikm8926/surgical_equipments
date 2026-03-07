@@ -26,9 +26,9 @@ import { DeleteProductButton } from '@/components/admin/delete-product-button';
 export default async function AdminProductsPage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: Promise<{ q?: string }>;
 }) {
-  const query = (await searchParams).q || '';
+  const { q: query = '' } = await searchParams;
   const supabase = await createClient();
 
   let productsQuery = supabase
