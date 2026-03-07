@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+import { stripe } from '@/lib/stripe';
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -25,10 +25,6 @@ const CheckoutBodySchema = z.object({
     phone: z.string().min(1),
   }),
   is_demo: z.boolean().optional(),
-});
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-02-25.clover',
 });
 
 export async function POST(req: NextRequest) {

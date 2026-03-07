@@ -1,13 +1,10 @@
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { stripe } from '@/lib/stripe';
 import { createClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-02-25.clover',
-});
 
 export async function POST(req: NextRequest) {
   const body = await req.text();

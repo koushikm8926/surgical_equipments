@@ -59,9 +59,10 @@ export async function GET() {
 
     return NextResponse.json(formattedOrders);
   } catch (error: unknown) {
-    console.error('API Error /api/admin/orders:', error);
+    const err = error as { message?: string };
+    console.error('API Error /api/admin/orders:', err);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { error: err?.message || 'Unknown error', details: error },
       { status: 500 },
     );
   }
