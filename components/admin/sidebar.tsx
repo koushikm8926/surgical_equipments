@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -24,6 +26,14 @@ const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+    router.refresh();
+  };
 
   return (
     <aside className="w-64 border-r border-slate-200 bg-white flex flex-col h-screen sticky top-0">
@@ -69,12 +79,10 @@ export function AdminSidebar() {
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 rounded-xl text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-          asChild
+          onClick={handleLogout}
         >
-          <Link href="/">
-            <LogOut className="w-5 h-5" />
-            <span className="text-sm font-medium">Exit Admin</span>
-          </Link>
+          <LogOut className="w-5 h-5" />
+          <span className="text-sm font-medium">Exit Admin</span>
         </Button>
       </div>
     </aside>
