@@ -30,6 +30,7 @@ export async function GET() {
     }
 
     // Fetch all orders with profiles and order item counts
+    console.log('Fetching admin orders for user:', user.email);
     const { data: orders, error } = await supabase
       .from('orders')
       .select(
@@ -37,7 +38,16 @@ export async function GET() {
       )
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase Query Error /api/admin/orders:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+      throw error;
+    }
+    console.log(`Successfully fetched ${orders?.length || 0} orders`);
 
     // Map result to expected format
     const formattedOrders = (orders || []).map((order) => ({

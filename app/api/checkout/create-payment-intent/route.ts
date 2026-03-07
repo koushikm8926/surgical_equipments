@@ -128,7 +128,17 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    await supabase.from('order_items').insert(orderItems);
+    const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
+
+    if (itemsError) {
+      console.error('Order items insertion failed:', itemsError);
+      // Optional: Delete the order if items fail, but since we're not in a transaction,
+      // just returning the error is better for debugging for now.
+      return NextResponse.json(
+        { error: `Failed to insert order items: ${itemsError.message}` },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
       clientSecret,

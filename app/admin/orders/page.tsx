@@ -50,10 +50,17 @@ export default function AdminOrdersPage() {
   };
 
   const filteredOrders = orders.filter((order) => {
+    const customerName = (
+      order.profiles?.full_name ||
+      order.shipping_address?.full_name ||
+      ''
+    ).toLowerCase();
+    const customerEmail = (order.profiles?.email || 'Guest').toLowerCase();
+    const orderId = order.id.toLowerCase();
+    const term = searchTerm.toLowerCase();
+
     const matchesSearch =
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+      orderId.includes(term) || customerName.includes(term) || customerEmail.includes(term);
 
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
 

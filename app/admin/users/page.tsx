@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { formatPrice, formatDate } from '@/utils/format';
 import { type Customer } from '@/types/admin';
-import { cn } from '@/lib/utils';
 
 export default function AdminUsersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -35,7 +34,9 @@ export default function AdminUsersPage() {
 
   const filtered = customers.filter((c) => {
     const term = searchTerm.toLowerCase();
-    return c.full_name?.toLowerCase().includes(term) || c.email?.toLowerCase().includes(term);
+    const name = (c.full_name || '').toLowerCase();
+    const email = (c.email || '').toLowerCase();
+    return name.includes(term) || email.includes(term);
   });
 
   return (
