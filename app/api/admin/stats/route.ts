@@ -13,11 +13,19 @@ export async function GET() {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, full_name')
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin' && user.email !== 'admin@surgicalequip.com') {
+    // Sync admin role for the demo user if missing or not set to admin
+    if (user.email === 'admin@surgicalequip.com' && profile?.role !== 'admin') {
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        email: user.email,
+        role: 'admin',
+        full_name: profile?.full_name || 'Default Admin',
+      });
+    } else if (profile?.role !== 'admin' && user.email !== 'admin@surgicalequip.com') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

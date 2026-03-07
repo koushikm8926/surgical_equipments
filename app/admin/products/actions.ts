@@ -40,6 +40,27 @@ export async function upsertProduct(
     };
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user?.email === 'admin@surgicalequip.com') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile?.role !== 'admin') {
+      await supabase.from('profiles').upsert({
+        id: user.id,
+        email: user.email,
+        role: 'admin',
+        full_name: 'Default Admin',
+      });
+    }
+  }
+
   const productId = formData.get('id') as string;
 
   if (productId) {
@@ -50,14 +71,14 @@ export async function upsertProduct(
       .eq('id', productId);
 
     if (error) {
-      return { message: 'Database Error: Failed to Update Product.' };
+      return { message: `Database Error: ${error.message}` };
     }
   } else {
     // Insert
     const { error } = await supabase.from('products').insert([validatedFields.data]);
 
     if (error) {
-      return { message: 'Database Error: Failed to Create Product.' };
+      return { message: `Database Error: ${error.message}` };
     }
   }
 
@@ -72,7 +93,7 @@ export async function deleteProduct(id: string) {
   const { error } = await supabase.from('products').delete().eq('id', id);
 
   if (error) {
-    return { message: 'Database Error: Failed to Delete Product.' };
+    return { message: `Database Error: ${error.message}` };
   }
 
   revalidatePath('/admin/products');
