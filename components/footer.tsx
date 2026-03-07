@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Stethoscope,
   Mail,
@@ -11,6 +14,12 @@ import {
 } from 'lucide-react';
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <footer className="bg-slate-950 text-slate-400">
       {/* Main Footer */}
