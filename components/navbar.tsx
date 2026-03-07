@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, User, Menu, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCart } from '@/contexts/cart-context';
@@ -14,8 +14,14 @@ export function Navbar() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const { totalItems, openCart } = useCart();
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +88,7 @@ export function Navbar() {
             aria-label="Open cart"
           >
             <ShoppingCart className="h-5 w-5" />
-            {totalItems > 0 && (
+            {isMounted && totalItems > 0 && (
               <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in zoom-in-75">
                 {totalItems > 99 ? '99+' : totalItems}
               </span>

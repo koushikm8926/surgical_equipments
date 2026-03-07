@@ -40,11 +40,16 @@ export async function GET() {
     }, {});
 
     // 3. Recent orders
-    const { data: recentOrders } = await supabase
+    const { data: recentOrdersData } = await supabase
       .from('orders')
-      .select('id, total_amount, status, created_at, profiles(full_name)')
+      .select('id, total_amount, status, created_at, profiles(full_name), order_items(id)')
       .order('created_at', { ascending: false })
       .limit(5);
+
+    const recentOrders = (recentOrdersData || []).map((order) => ({
+      ...order,
+      order_items: [{ count: order.order_items?.length || 0 }],
+    }));
 
     // 4. Sales over time (Simplified: last 7 days)
     const sevenDaysAgo = new Date();

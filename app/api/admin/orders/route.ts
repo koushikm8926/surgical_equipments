@@ -31,14 +31,22 @@ export async function GET() {
           full_name,
           email
         ),
-        order_items (count)
+        order_items (
+          id
+        )
       `,
       )
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    return NextResponse.json(orders);
+    // Map order_items to the format expected by the frontend: [{ count: number }]
+    const formattedOrders = (orders || []).map((order) => ({
+      ...order,
+      order_items: [{ count: order.order_items?.length || 0 }],
+    }));
+
+    return NextResponse.json(formattedOrders);
   } catch (error: unknown) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },
